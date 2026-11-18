@@ -1,0 +1,2 @@
+ALTER TABLE `order` MODIFY `total_price` DECIMAL(10,2) NOT NULL;
+ALTER TABLE `order_detail` MODIFY `price` DECIMAL(10,2) NOT NULL;

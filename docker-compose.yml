@@ -1,0 +1,38 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: .docker/app/php-server.dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: karesushi_db
+      DB_USER: karesushi
+      DB_PASSWORD: karesushi_local
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    ports:
+      - "127.0.0.1:3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root_local
+      MARIADB_DATABASE: karesushi_db
+      MARIADB_USER: karesushi
+      MARIADB_PASSWORD: karesushi_local
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./karesushi_db.sql:/docker-entrypoint-initdb.d/01-karesushi.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  db_data:
